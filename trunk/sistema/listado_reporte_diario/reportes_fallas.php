@@ -1,0 +1,63 @@
+<?php
+include '../conexion.inc.php';
+
+$ccosto = $_GET["ccosto"];
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Reporte de Fallas</title>
+</head>
+<link rel="stylesheet" type="text/css" href="../images/style.css" />
+<script language="javascript" src="../funciones.js"></script>
+<script language="javascript">
+<!--
+function Load(){
+	document.getElementById('divDetalle').style.height = (window.innerHeight - 20) + 'px';
+	document.getElementById('btnSoluciona1').focus();
+}
+
+function Solucionar(id){
+	AbreDialogo('divSolucion', 'frmSolucion', 'soluciona.php?id=' + id, true);
+}
+-->
+</script>
+<body marginheight="0" marginwidth="0" onload="javascript: Load()">
+<table border="0" width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<th width="3%">N&deg;</th>
+		<th width="62%" align="left">&nbsp;Descripci&oacute;n</th>
+		<th width="14%">Fecha</th>
+		<th width="19%">&nbsp;</th>
+		<th width="2%">&nbsp;</th>
+	</tr>
+</table>
+<div id="divDetalle" style="position:relative; width:100%; overflow:scroll">
+<table border="0" width="100%" cellpadding="0" cellspacing="1">
+<?php
+$stmt = mssql_query("SELECT dblId, strDescripcion, CONVERT(VARCHAR, dtmFecha, 103) AS dtmFch FROM Operaciones..ReporteFalla WHERE strCCosto = '$ccosto' AND intVigente = 1 ORDER BY dtmFecha DESC", $cnx);
+if($rst = mssql_fetch_array($stmt)){
+	do{
+		$cont++;
+		echo '<tr bgcolor="'.($cont % 2 == 0 ? '#EBF1FF' : '#FFFFFF').'">';
+		echo '<td width="3%" align="center">'.$cont.'</td>';
+		echo '<td width="62%" align="left">&nbsp;'.$rst["strDescripcion"].'</td>';
+		echo '<td width="14%" align="center">'.$rst["dtmFch"].'</td>';
+		echo '<td width="19%" align="center">';
+		echo '<input type="button" name="btnSoluciona'.$cont.'" id="btnSoluciona'.$cont.'" class="boton" style="width:90%" value="Solucionar..." ';
+		echo 'onclick="javascript: Solucionar('.$rst["dblId"].');"';
+		echo '/>';
+		echo '</td>';
+		echo '</tr>';
+	}while($rst = mssql_fetch_array($stmt));
+}else{
+	echo '<tr><td align="center" style="color:#FF0000"><b>No se ha encontrado informaci&oacute;n</b></td></tr>';
+}
+mssql_free_result($stmt);
+mssql_close($cnx);
+?>
+</table>
+</div>
+</body>
+</html>
